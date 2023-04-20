@@ -18,14 +18,6 @@ type NotUsed struct {
 	Name string
 }
 
-type Client struct { // Our example struct, you can use "-" to ignore a field
-	Id            string `csv:"client_id"`
-	Name          string `csv:"client_name"`
-	Age           string `csv:"client_age"`
-	NotUsedString string `csv:"-"`
-	NotUsed       `csv:"-"`
-}
-
 type Message struct {
 	Title   string `csv:"Title"`
 	From    string `csv:"From"`
@@ -44,6 +36,7 @@ type Contact struct {
 	Company   string `csv:"Company"`
 	Country   string `csv:"Country"`
 	Comments  string `csv:"Comments"`
+	URL       string `csv:"URL"`
 }
 
 func main() {
@@ -88,23 +81,22 @@ func readArgs() (map[string]string, error) {
 
 // Read the specified csv file and returns the contacts slice.
 func ReadCSVtoListContact(fileName string) ([]Contact, error) {
-	listContact := []Contact{}
-
-	messageFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	byte, err := os.ReadFile(fileName)
 	if err != nil {
-		return nil, fmt.Errorf("error while open file: %w", err)
+		return nil, nil
 	}
-	defer messageFile.Close()
+
+	str := string(byte)
+
+	str = "Title,From,To,Date,Empty,Body\n" + str
 
 	messages := []Message{}
 
-	if err := gocsv.UnmarshalFile(messageFile, &messages); err != nil { // Load clients from file
+	if err := gocsv.UnmarshalString(str, &messages); err != nil { // Load clients from file
 		return nil, fmt.Errorf("unmarshal file: %w", err)
 	}
 
-	if _, err := messageFile.Seek(0, 0); err != nil { // Go to the start of the file
-		return nil, fmt.Errorf("seek: %w", err)
-	}
+	listContact := []Contact{}
 
 	for _, message := range messages {
 		listContact = append(listContact, parseBody(message.Body))
@@ -137,6 +129,7 @@ func SaveToExelFile(fileName string, list []Contact) error {
 	outputFile.SetCellValue(sheetName, "F1", "Company")
 	outputFile.SetCellValue(sheetName, "G1", "Country")
 	outputFile.SetCellValue(sheetName, "H1", "Comments")
+	outputFile.SetCellValue(sheetName, "I1", "URL")
 
 	for i, contact := range list {
 		row := strconv.Itoa(i + 2)
@@ -148,6 +141,7 @@ func SaveToExelFile(fileName string, list []Contact) error {
 		outputFile.SetCellValue(sheetName, "F"+row, contact.Company)
 		outputFile.SetCellValue(sheetName, "G"+row, contact.Country)
 		outputFile.SetCellValue(sheetName, "H"+row, contact.Comments)
+		outputFile.SetCellValue(sheetName, "I"+row, contact.URL)
 	}
 
 	outputFile.SetActiveSheet(index)
@@ -175,12 +169,16 @@ func parseBody(body string) Contact {
 		contact.Company = getValue(rows[16], "Company Name")
 		contact.Country = getValue(rows[17], "Country")
 		contact.Comments = getValue(rows[18], "Comment")
+		contact.URL = getValue(rows[19], "Site URL")
+		// fmt.Println(rows[19])
+
 	}
+
 	return contact
 }
 
 func getValue(keyPairStr, keyName string) string {
-	row := strings.Split(keyPairStr, ":")
+	row := strings.Split(keyPairStr, ": ")
 	if len(row) != lenMustHave {
 		return ""
 	}
