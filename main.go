@@ -90,7 +90,7 @@ func readArgs() (map[string]string, error) {
 func ReadCSVtoListContact(fileName string) ([]Contact, error) {
 	listContact := []Contact{}
 
-	messageFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	messageFile, err := os.OpenFile(fileName, os.O_RDWR, os.ModePerm)
 	if err != nil {
 		return nil, fmt.Errorf("error while open file: %w", err)
 	}
