@@ -24,6 +24,7 @@ type Message struct {
 	To      string `csv:"To"`
 	Date    string `csv:"Date"`
 	NotUsed string `csv:"-"`
+	NotUsed2 string `csv:"-"`
 	Body    string `csv:"Body"`
 }
 
@@ -46,7 +47,7 @@ func main() {
 
 		return
 	}
-
+	
 	listContacts, err := ReadCSVtoListContact(args["--in"])
 	if err != nil {
 		log.Println(err.Error())
@@ -88,7 +89,7 @@ func ReadCSVtoListContact(fileName string) ([]Contact, error) {
 
 	str := string(byte)
 
-	str = "Title,From,To,Date,Empty,Body\n" + str
+	str = "Title,From,To,Date,Empty,Index,Body\n" + str
 
 	messages := []Message{}
 

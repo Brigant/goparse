@@ -1,5 +1,5 @@
 # goparse
-for NIS company
+For NIS company demands
 
 How to use:
 ```
@@ -12,5 +12,5 @@ In the dirctory will apear the binary file MiotGlobalToExcel
 Just run it with argument --in=/some-path/input.csv and --out=/some-path/output.xlsx
 
 ```
-./MiotGlobalToExcel --in=/some-path/input.csv and --out=/some-path/output.xlsx
+./MiotGlobalToExcel --in=/some-path/input.csv --out=/some-path/output.xlsx
 ```
